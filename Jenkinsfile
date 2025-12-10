@@ -16,7 +16,7 @@ pipeline{
             steps{
                 echo 'setting up virtual environment in jenkins and installing librabries'
                 sh '''
-                python -m vevn ${VENV_DIR}
+                python -m venv ${VENV_DIR}
                 . ${VENV_DIR}/bin/activate
                 pip install --upgrade pip
                 pip install -e .
