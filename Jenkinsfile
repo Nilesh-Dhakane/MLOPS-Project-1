@@ -67,36 +67,28 @@ pipeline {
             }
         }
 
-        stage('Deploy to google cloud run') {
+        stage('Deploy to Cloud Run') {
             steps {
-
-                // ✅ FIXED: Credential ID must NOT contain spaces
                 withCredentials([
                     file(credentialsId: 'gcp-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')
                 ]) {
+                    sh '''
+                        export PATH=$PATH:/usr/bin
 
-                    script {
-                        echo 'Deploy to google cloud run'
+                        gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 
-                        sh '''
-                            export PATH=$PATH:${GCLOUD_PATH}
+                        gcloud config set project ${GCP_PROJECT}
 
-                            # ✅ FIXED: correct command
-                            gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
-
-                            gcloud config set project ${GCP_PROJECT}
-
-                            # ✅ FIXED: correct spelling
-                            gcloud run deploy ml-project \ 
-                                --image=gcr.io/${GCP_PROJECT}/ml-project:latest \
-                                --platform=managed \ 
-                                --region=us-central1 \
-                                --allow-unauthenticated
-                        '''
-                    }
+                        gcloud run deploy ml-project \
+                        --image gcr.io/${GCP_PROJECT}/ml-project:latest \
+                        --platform managed \
+                        --region us-central1 \
+                        --allow-unauthenticated
+                    '''
                 }
             }
         }
+
     }
 }
 
